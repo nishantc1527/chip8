@@ -67,7 +67,7 @@ func initialize() {
 		files, _ := AssetDir("assets")
 
 		for _, file := range files {
-			if file == "beep.wav" {
+			if file == "beep.wav" || file == "banner.txt" {
 				continue
 			}
 
