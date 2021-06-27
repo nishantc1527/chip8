@@ -15,5 +15,28 @@ Make sure to put $GOPATH/bin in your path.
 
 # Usage
 ```
-chip8 <path-to-rom>
+usage: Chip 8 [-h|--help] [-l|--list] [-g|--game "<value>"] [-r|--rom
+              "<value>"] [-a|--no-audio]
+
+              
+  _____ _     _          ___  
+ / ____| |   (_)        / _ \ 
+| |    | |__  _ _ __   | (_) |
+| |    | '_ \| | '_ \   > _ < 
+| |____| | | | | |_) | | (_) |
+ \_____|_| |_|_| .__/   \___/ 
+               | |            
+               |_|            
+
+A Complete Chip 8 Emulator
+
+
+
+Arguments:
+
+  -h  --help      Print help information
+  -l  --list      List All Inbuilt Games. Default: false
+  -g  --game      Inbuilt Game To Play. Default: pong2
+  -r  --rom       Path To Rom File
+  -a  --no-audio  If True, Beeping Sounds Will Be Played. Default: false
 ```

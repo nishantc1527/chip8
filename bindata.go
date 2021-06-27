@@ -1,6 +1,7 @@
 // Code generated for package main by go-bindata DO NOT EDIT. (@generated)
 // sources:
 // assets/15puzzle.rom
+// assets/banner.txt
 // assets/beep.wav
 // assets/blinky.rom
 // assets/blitz.rom
@@ -119,6 +120,26 @@ func assets15puzzleRom() (*asset, error) {
 	}
 
 	info := bindataFileInfo{name: "assets/15puzzle.rom", size: 264, mode: os.FileMode(420), modTime: time.Unix(1624739696, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _assetsBannerTxt = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x64\x8e\xc1\x0a\xc2\x40\x0c\x44\xef\xf9\x8a\x77\x53\x2f\xee\xd5\x83\x08\x52\xfc\x8b\xc2\xe0\xa1\xa0\xd0\xd2\x22\xf5\x96\x8f\x97\xa4\x5d\xa5\x38\x0b\xc9\x92\x37\x93\x5d\x03\x85\x10\xa1\xa5\x2e\x57\x09\x8c\x92\xdc\x71\x60\xaf\x43\xa5\x05\xd1\x62\xcb\x1c\xc7\xc3\x1d\x5b\xa2\xe3\x69\xf5\x1f\xde\x89\xd6\xd7\x0e\x5c\x10\xe7\x4c\xd7\xe5\xeb\x89\xd4\x37\x4d\x9b\x5f\xf3\x30\x64\x3d\x4a\x05\x72\x5c\x30\xb6\x5a\xdf\xaa\xfa\xc3\xda\x62\xbb\xd2\x8c\xc3\xd4\x77\x73\x47\xf3\x78\x4e\x9c\xb8\x0d\xef\xfe\x3e\x8f\x2f\xb3\x4f\x00\x00\x00\xff\xff\x9a\x51\x44\xe1\x16\x01\x00\x00")
+
+func assetsBannerTxtBytes() ([]byte, error) {
+	return bindataRead(
+		_assetsBannerTxt,
+		"assets/banner.txt",
+	)
+}
+
+func assetsBannerTxt() (*asset, error) {
+	bytes, err := assetsBannerTxtBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "assets/banner.txt", size: 278, mode: os.FileMode(420), modTime: time.Unix(1624819343, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -696,6 +717,7 @@ func AssetNames() []string {
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
 	"assets/15puzzle.rom": assets15puzzleRom,
+	"assets/banner.txt":   assetsBannerTxt,
 	"assets/beep.wav":     assetsBeepWav,
 	"assets/blinky.rom":   assetsBlinkyRom,
 	"assets/blitz.rom":    assetsBlitzRom,
@@ -767,6 +789,7 @@ type bintree struct {
 var _bintree = &bintree{nil, map[string]*bintree{
 	"assets": &bintree{nil, map[string]*bintree{
 		"15puzzle.rom": &bintree{assets15puzzleRom, map[string]*bintree{}},
+		"banner.txt":   &bintree{assetsBannerTxt, map[string]*bintree{}},
 		"beep.wav":     &bintree{assetsBeepWav, map[string]*bintree{}},
 		"blinky.rom":   &bintree{assetsBlinkyRom, map[string]*bintree{}},
 		"blitz.rom":    &bintree{assetsBlitzRom, map[string]*bintree{}},

@@ -3,15 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/akamensky/argparse"
-	"github.com/veandco/go-sdl2/mix"
-	"github.com/veandco/go-sdl2/sdl"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/akamensky/argparse"
+	"github.com/veandco/go-sdl2/mix"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 var (
@@ -48,7 +49,8 @@ func main() {
 }
 
 func initialize() {
-	parser := argparse.NewParser("Chip 8", "A Chip 8 Emulator")
+	banner, _ := Asset("assets/banner.txt")
+	parser := argparse.NewParser("Chip 8", string(banner))
 
 	listGames := parser.Flag("l", "list", &argparse.Options{Required: false, Help: "List All Inbuilt Games", Default: false})
 	game := parser.String("g", "game", &argparse.Options{Required: false, Help: "Inbuilt Game To Play", Default: "pong2"})
