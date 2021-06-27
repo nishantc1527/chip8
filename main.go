@@ -2,11 +2,15 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"github.com/akamensky/argparse"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -30,6 +34,8 @@ var (
 	keymap      [0x10]uint8
 
 	beep *mix.Chunk
+
+	na bool
 )
 
 const (
@@ -42,21 +48,52 @@ func main() {
 }
 
 func initialize() {
+	parser := argparse.NewParser("Chip 8", "A Chip 8 Emulator")
+
+	listGames := parser.Flag("l", "list", &argparse.Options{Required: false, Help: "List All Inbuilt Games", Default: false})
+	game := parser.String("g", "game", &argparse.Options{Required: false, Help: "Inbuilt Game To Play", Default: "pong2"})
+	rom := parser.String("r", "rom", &argparse.Options{Required: false, Help: "Path To Rom File"})
+	audio := parser.Flag("a", "no-audio", &argparse.Options{Required: false, Help: "If True, Beeping Sounds Will Be Played", Default: false})
+
+	err := parser.Parse(os.Args)
+	if err != nil {
+		fmt.Print(parser.Usage(err))
+		os.Exit(1)
+	}
+
+	if *listGames {
+		files, _ := AssetDir("assets")
+
+		for _, file := range files {
+			if file == "beep.wav" {
+				continue
+			}
+
+			fmt.Println(strings.TrimSuffix(file, filepath.Ext(file)))
+		}
+
+		os.Exit(0)
+	}
+
+	bytes, readErr := os.ReadFile(*rom)
+	if readErr == nil {
+		if len(bytes) > 0x4096 {
+			panic(errors.New("input rom to large"))
+		}
+		loadRom(bytes)
+	} else {
+		bytes, _ = Asset("assets/" + *game + ".rom")
+		loadRom(bytes)
+	}
+
+	if *audio {
+		na = true
+	}
+
 	pc = 0x200
 
 	sprites := GetSprites()
 	loadSprites(sprites)
-
-	if len(os.Args) > 1 {
-		rom := os.Args[1]
-		err := loadRom(rom)
-
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		os.Exit(0)
-	}
 
 	keymap = GetKeymap()
 }
@@ -67,26 +104,10 @@ func loadSprites(sprites [0x50]byte) {
 	}
 }
 
-func loadRom(rom string) error {
-	file, err := os.Open(rom)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	bytes, readErr := os.ReadFile(rom)
-	if readErr != nil {
-		return readErr
-	}
-	if len(bytes) > 0x4096 {
-		return errors.New("input rom to large")
-	}
-
+func loadRom(bytes []byte) {
 	for i, j := 0, 0x200; i < len(bytes); i, j = i+1, j+1 {
 		memory[j] = bytes[i]
 	}
-
-	return nil
 }
 
 func mainLoop() {
@@ -311,12 +332,14 @@ func clock() {
 
 		x, y := vx(), vy()
 		initialX := x
+		x %= 64
 
 		for _, sprite := range bytes {
 			currentBit := 1 << 7
 			y %= 32
 
 			for currentBit > 0 {
+				x %= 64
 				if (sprite & uint8(currentBit)) > 0 {
 					if pixels[y][x] {
 						pixels[y][x] = false
@@ -328,7 +351,6 @@ func clock() {
 
 				currentBit >>= 1
 				x++
-				x %= 64
 			}
 
 			x, y = initialX, y+1
@@ -383,7 +405,7 @@ func clock() {
 
 	nextInstruction()
 
-	if st > 0 {
+	if st > 0 && !na {
 		if _, err := beep.Play(1, 0); err != nil {
 			panic(err)
 		}
