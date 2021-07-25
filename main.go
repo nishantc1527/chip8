@@ -373,8 +373,31 @@ func clock() {
 		case 0x07:
 			v[getX()] = dt
 		case 0x0a:
-			// TODO Implement
-			// All execution stops until a key is pressed, then the value of that key is stored in Vx.
+		loop:
+			for event := sdl.PollEvent(); ; event = sdl.PollEvent() {
+				switch t := event.(type) {
+				case *sdl.QuitEvent:
+					os.Exit(0)
+				case *sdl.KeyboardEvent:
+					switch t.GetType() {
+					case sdl.KEYDOWN:
+						for i := 0; i < 16; i++ {
+							if t.Keysym.Sym == sdl.Keycode(keymap[i]) {
+								v[getX()] = uint8(i)
+							}
+						}
+
+						break loop
+					case sdl.KEYUP:
+						for i := 0; i < 16; i++ {
+							if t.Keysym.Sym == sdl.Keycode(keymap[i]) {
+								keysPressed[i] = false
+							}
+						}
+					}
+				}
+			}
+			nextInstruction()
 		case 0x15:
 			dt = vx()
 		case 0x18:
