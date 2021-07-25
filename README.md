@@ -8,7 +8,7 @@ Chip 8 emulator made in Go. Games are taken from [here](https://github.com/badlo
 
 # Download
 ```
-go get -u github.com/nishantc1527/chip8
+go install github.com/nishantc1527/chip8
 ```
 
 Make sure to put $GOPATH/bin in your path.
