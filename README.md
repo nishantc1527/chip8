@@ -16,7 +16,7 @@ Make sure to put $GOPATH/bin in your path.
 # Usage
 ```
 usage: Chip 8 [-h|--help] [-l|--list] [-g|--game "<value>"] [-r|--rom
-              "<value>"] [-a|--no-audio]
+              "<value>"] [-q|--qr-code "<value>"] [-a|--no-audio]
 
               
   _____ _     _          ___  
@@ -38,5 +38,6 @@ Arguments:
   -l  --list      List All Inbuilt Games. Default: false
   -g  --game      Inbuilt Game To Play. Default: pong2
   -r  --rom       Path To Rom File
+  -q  --qr-code   QR Code Image Containing ROM
   -a  --no-audio  If True, Beeping Sounds Will Be Played. Default: false
 ```
