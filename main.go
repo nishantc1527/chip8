@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/akamensky/argparse"
+	"github.com/tebeka/atexit"
+	"github.com/tuotoo/qrcode"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -49,18 +51,21 @@ func main() {
 }
 
 func initialize() {
+	atexit.Register(cleanup)
+
 	banner, _ := Asset("assets/banner.txt")
 	parser := argparse.NewParser("Chip 8", string(banner))
 
 	listGames := parser.Flag("l", "list", &argparse.Options{Required: false, Help: "List All Inbuilt Games", Default: false})
 	game := parser.String("g", "game", &argparse.Options{Required: false, Help: "Inbuilt Game To Play", Default: "pong2"})
 	rom := parser.String("r", "rom", &argparse.Options{Required: false, Help: "Path To Rom File"})
+	qrCode := parser.String("q", "qr-code", &argparse.Options{Required: false, Help: "QR Code Image Containing ROM"})
 	audio := parser.Flag("a", "no-audio", &argparse.Options{Required: false, Help: "If True, Beeping Sounds Will Be Played", Default: false})
 
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Print(parser.Usage(err))
-		os.Exit(1)
+		atexit.Exit(1)
 	}
 
 	if *listGames {
@@ -74,15 +79,47 @@ func initialize() {
 			fmt.Println(strings.TrimSuffix(file, filepath.Ext(file)))
 		}
 
-		os.Exit(0)
+		atexit.Exit(0)
 	}
 
-	bytes, readErr := os.ReadFile(*rom)
-	if readErr == nil {
-		if len(bytes) > 0x4096 {
-			panic(errors.New("input rom to large"))
+	if bytes, readErr := os.ReadFile(*rom); readErr == nil {
+		if len(bytes) > 0x1000 {
+			fmt.Println(errors.New("Input ROM To Large"))
+			atexit.Exit(1)
 		}
+
 		loadRom(bytes)
+	} else if file, readErr := os.Open(*qrCode); readErr == nil {
+		defer file.Close()
+
+		qrCodeMatrix, decodeErr := qrcode.Decode(file)
+
+		if decodeErr != nil {
+			fmt.Println("Invalid QR Code")
+			atexit.Exit(1)
+		}
+
+		_, createErr := os.Create("qr-code-bin.rom")
+
+		if createErr != nil {
+			fmt.Println("Something Went Wrong While Creating File")
+			atexit.Exit(1)
+		}
+
+		writeErr := os.WriteFile("qr-code-bin.rom", []byte(qrCodeMatrix.Content), 0666)
+
+		if writeErr != nil {
+			fmt.Println("Something Went Wrong While Writing To File")
+		}
+
+		if bytes, err := os.ReadFile("qr-code-bin.rom"); err == nil {
+			if len(bytes) > 0x1000 {
+				fmt.Println("Input ROM To Large")
+				atexit.Exit(1)
+			}
+
+			loadRom(bytes)
+		}
 	} else {
 		bytes, _ = Asset("assets/" + *game + ".rom")
 		loadRom(bytes)
@@ -94,10 +131,10 @@ func initialize() {
 
 	pc = 0x200
 
-	sprites := GetSprites()
+	sprites := getSprites()
 	loadSprites(sprites)
 
-	keymap = GetKeymap()
+	keymap = getKeymap()
 }
 
 func loadSprites(sprites [0x50]byte) {
@@ -197,7 +234,8 @@ func pollInput() {
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
-			os.Exit(0)
+			cleanup()
+			atexit.Exit(0)
 		case *sdl.KeyboardEvent:
 			switch t.GetType() {
 			case sdl.KEYDOWN:
@@ -377,7 +415,7 @@ func clock() {
 			for event := sdl.PollEvent(); ; event = sdl.PollEvent() {
 				switch t := event.(type) {
 				case *sdl.QuitEvent:
-					os.Exit(0)
+					atexit.Exit(0)
 				case *sdl.KeyboardEvent:
 					switch t.GetType() {
 					case sdl.KEYDOWN:
@@ -485,7 +523,11 @@ func sleep() {
 	time.Sleep(1 * time.Millisecond)
 }
 
-func GetSprites() [0x50]uint8 {
+func cleanup() {
+	os.Remove("qr-code-bin.rom")
+}
+
+func getSprites() [0x50]uint8 {
 	return [0x50]byte{
 		0b11110000,
 		0b10010000,
@@ -585,7 +627,7 @@ func GetSprites() [0x50]uint8 {
 	}
 }
 
-func GetKeymap() [16]uint8 {
+func getKeymap() [16]uint8 {
 	return [16]uint8{
 		sdl.K_x,
 		sdl.K_1,
